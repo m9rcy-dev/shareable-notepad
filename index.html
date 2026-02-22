@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shareable Notepad</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1 class="logo">📝 Shareable Notepad</h1>
+            <div class="actions">
+                <button id="themeBtn" class="btn btn-icon" title="Toggle dark mode">
+                    <span class="icon" id="themeIcon">🌙</span>
+                </button>
+                <button id="shareBtn" class="btn btn-primary" title="Copy shareable link (Ctrl+S)">
+                    <span class="icon">🔗</span>
+                    <span class="btn-text">Share</span>
+                </button>
+                <button id="newBtn" class="btn btn-secondary" title="Create new notepad (Ctrl+N)">
+                    <span class="icon">✨</span>
+                    <span class="btn-text">New</span>
+                </button>
+            </div>
+        </header>
+        
+        <main class="main">
+            <div class="editor-container">
+                <textarea 
+                    id="notepad" 
+                    class="notepad" 
+                    placeholder="Start typing your notes here..."
+                    spellcheck="false"
+                ></textarea>
+            </div>
+        </main>
+        
+        <footer class="footer">
+            <div class="status">
+                <span id="charCount">0 / 20,000</span>
+                <span class="separator">•</span>
+                <span id="wordCount">0 words</span>
+                <span class="separator">•</span>
+                <span id="limitStatus" class="limit-safe"></span>
+            </div>
+            <div class="info">
+                <span class="hint">Changes update the URL automatically</span>
+            </div>
+        </footer>
+    </div>
+    
+    <div id="toast" class="toast"></div>
+    
+    <script src="app.js"></script>
+</body>
+</html>

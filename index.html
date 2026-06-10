@@ -22,6 +22,10 @@
                     <span class="icon">✨</span>
                     <span class="btn-text">New</span>
                 </button>
+                <button id="micBtn" class="btn btn-mic" title="Voice input (Ctrl+M)" aria-label="Start voice input">
+                    <span class="mic-icon">🎙️</span>
+                    <span class="btn-text">Voice</span>
+                </button>
             </div>
         </header>
         
@@ -44,7 +48,8 @@
                 <span class="separator">•</span>
                 <span id="limitStatus" class="limit-safe"></span>
             </div>
-            <div class="info">
+            <div class="footer-right">
+                <div id="voiceStatus" class="voice-status" aria-live="polite" role="status"></div>
                 <span class="hint">Changes update the URL automatically</span>
             </div>
         </footer>

@@ -554,6 +554,116 @@ const TestSuite = (function() {
 })();
 
 /**
+ * Voice Input module using the Web Speech API
+ */
+function initVoice() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const micBtn   = document.getElementById('micBtn');
+    const statusEl = document.getElementById('voiceStatus');
+    const editor   = document.getElementById('notepad');
+
+    if (!SpeechRecognition) {
+        micBtn.classList.add('unsupported');
+        return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.continuous     = true;
+    recognition.interimResults = true;
+    recognition.lang           = document.documentElement.lang || navigator.language;
+
+    let isRecording = false;
+    let interimLen  = 0;
+
+    function insertText(text) {
+        const start = editor.selectionStart;
+        const end   = editor.selectionEnd;
+        const val   = editor.value;
+        editor.value = val.slice(0, start) + text + val.slice(end);
+        editor.selectionStart = editor.selectionEnd = start + text.length;
+        editor.dispatchEvent(new Event('input'));
+    }
+
+    recognition.onresult = (event) => {
+        if (!isRecording) return;
+        if (editor.value.length >= CONFIG.DANGER_THRESHOLD) {
+            stopRecording();
+            UIController.showToast('Voice stopped: approaching character limit', 'warning');
+            return;
+        }
+
+        let interim   = '';
+        let finalText = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+            const t = event.results[i][0].transcript;
+            if (event.results[i].isFinal) finalText += t;
+            else interim += t;
+        }
+
+        if (interimLen > 0) {
+            editor.value = editor.value.slice(0, -interimLen);
+            interimLen = 0;
+        }
+
+        if (finalText) {
+            insertText(finalText + ' ');
+        } else if (interim) {
+            editor.value += interim;
+            interimLen = interim.length;
+            editor.dispatchEvent(new Event('input'));
+        }
+
+        statusEl.textContent = interim ? `Hearing: ${interim}` : 'Listening...';
+    };
+
+    recognition.onerror = (event) => {
+        statusEl.textContent =
+            event.error === 'not-allowed'
+                ? 'Microphone access denied'
+                : `Error: ${event.error}`;
+        stopRecording();
+    };
+
+    recognition.onend = () => {
+        if (isRecording) recognition.start();
+    };
+
+    function startRecording() {
+        isRecording = true;
+        recognition.start();
+        micBtn.classList.add('recording');
+        micBtn.setAttribute('aria-label', 'Stop voice input');
+        statusEl.textContent = 'Listening...';
+    }
+
+    function stopRecording() {
+        isRecording = false;
+        recognition.stop();
+        micBtn.classList.remove('recording');
+        micBtn.setAttribute('aria-label', 'Start voice input');
+        statusEl.textContent = '';
+        interimLen = 0;
+    }
+
+    micBtn.addEventListener('click', () => {
+        isRecording ? stopRecording() : startRecording();
+    });
+
+    // Flush interim and stop on share to avoid encoding uncommitted text into URL
+    document.getElementById('shareBtn').addEventListener('click', () => {
+        if (isRecording) stopRecording();
+    });
+
+    // Ctrl/Cmd + M — toggle microphone
+    document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'm') {
+            e.preventDefault();
+            isRecording ? stopRecording() : startRecording();
+        }
+    });
+}
+
+/**
  * Main Application module
  */
 const NotepadApp = (function() {
@@ -563,14 +673,16 @@ const NotepadApp = (function() {
         ThemeManager.init();
         loadFromURL();
         setupEventListeners();
+        initVoice();
         UIController.focusNotepad();
-        
+
         // Expose test suite globally for console access
         window.NotepadTests = TestSuite;
         window.runTests = TestSuite.run;
-        
+
         console.log('📝 Shareable Notepad loaded!');
         console.log('💡 Run tests with: runTests()');
+        console.log('🎙️ Voice input: click the Voice button or press Ctrl/Cmd+M');
     }
 
     function setupEventListeners() {

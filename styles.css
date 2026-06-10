@@ -171,6 +171,46 @@ body {
     font-size: 1rem;
 }
 
+/* Mic / Voice Button */
+.btn-mic {
+    background-color: var(--color-surface);
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+}
+
+.btn-mic:hover {
+    background-color: var(--color-bg);
+    border-color: var(--color-text-secondary);
+}
+
+.btn-mic.recording {
+    background-color: var(--color-danger);
+    color: white;
+    border-color: var(--color-danger);
+}
+
+.btn-mic.recording .mic-icon {
+    display: inline-block;
+    animation: mic-pulse 1s infinite;
+}
+
+@keyframes mic-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.6; transform: scale(1.2); }
+}
+
+.btn-mic.unsupported {
+    display: none;
+}
+
+.voice-status {
+    font-size: 0.8rem;
+    color: var(--color-text-secondary);
+    font-style: italic;
+    min-width: 6em;
+    text-align: right;
+}
+
 /* Main Content */
 .main {
     flex: 1;
@@ -248,6 +288,12 @@ body {
 
 .separator {
     opacity: 0.5;
+}
+
+.footer-right {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
 }
 
 .hint {
